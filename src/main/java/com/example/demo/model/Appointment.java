@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class RDV {
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -21,10 +21,10 @@ public class RDV {
     private Date date;
     private Integer hours;
     @OneToOne
-    @JoinColumn(name = "client_id")
-    private  Client client;
+    @JoinColumn(name = "customerid")
+    private Customer customer;
     private Integer status;
     @ManyToOne
-    @JoinColumn(name = "professionels_id")
-    private Professionnel professionnel;
+    @JoinColumn(name = "professionalid")
+    private Professional professional;
 }
