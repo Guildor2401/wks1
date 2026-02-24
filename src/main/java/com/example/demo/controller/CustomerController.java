@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -23,10 +24,8 @@ public class CustomerController {
     }
 
     @GetMapping("/GetOneCustomer")
-    public Customer GetOneCustomer(Integer id)
+    public Map<String, String> GetOneCustomer(Integer id)
     {
-        return customerService.getCustomerById(id);
+        return customerService.getCustomerInfoById(id);
     }
-
-
 }
