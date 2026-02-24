@@ -1,12 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Customer;
-import com.example.demo.reposirtory.CustomerRepositoryy;
+import com.example.demo.command.CreateCustomerCommand;
+import com.example.demo.model.Customers;
 import com.example.demo.service.CustomerService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -18,14 +16,24 @@ public class CustomerController {
     CustomerService customerService;
 
     @GetMapping("/AllCustomers")
-    public List<Customer> GetAllCustomers()
+    public List<Customers> GetAllCustomers()
     {
         return customerService.GetAllCustomers();
     }
 
-    @GetMapping("/GetOneCustomer")
-    public Map<String, String> GetOneCustomer(Integer id)
+    @GetMapping("/GetOneCustomer/{id}")
+    public Map<String, String> GetOneCustomer(@PathVariable Integer id)
     {
         return customerService.getCustomerInfoById(id);
+    }
+
+    @PostMapping("/CreateCustomer")
+    public void CreateCustomer(@RequestBody CreateCustomerCommand command) {
+        customerService.createCustomer(command);
+    }
+
+    @PutMapping("/UpdateCustomer")
+    public void UpdateCustomer(@RequestBody CreateCustomerCommand command) {
+        customerService.createCustomer(command);
     }
 }

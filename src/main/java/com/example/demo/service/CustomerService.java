@@ -1,13 +1,13 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Customer;
-import com.example.demo.reposirtory.CustomerRepositoryy;
+import com.example.demo.model.Customers;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.example.demo.command.CreateCustomerCommand;
 import com.example.demo.command.UptadeCustomerCommand;
 import com.example.demo.exception.CustomerNotFoundException;
 import com.example.demo.repository.CustomerRepository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,51 +16,50 @@ import java.util.Map;
 @AllArgsConstructor
 public class CustomerService {
 
-    private final CustomerRepositoryy customerRepository;
+    private final CustomerRepository customerRepository;
 
-    public List<Customer> GetAllCustomers() {
+    public List<Customers> GetAllCustomers() {
         return customerRepository.findAll();
     }
 
     public Map<String, String> getCustomerInfoById(Integer id) {
-        Customer customer = customerRepository.findById(id).orElse(null);
-        if (customer == null) {
+        Customers customers = customerRepository.findById(id).orElse(null);
+        if (customers == null) {
             return null;
         }
 
         Map<String, String> info = new HashMap<>();
-        info.put("firstname", customer.getFirstName());
-        info.put("lastname", customer.getLastName());
-        info.put("email", customer.getEmail());
+        info.put("firstname", customers.getFirst_name());
+        info.put("lastname", customers.getLast_name());
+        info.put("email", customers.getEmail());
 
         return info;
     }
 
     public void createCustomer(CreateCustomerCommand command) {
 
-        Customer customerToCreate = Customer.builder()
-                .id(command.getId())
-                .lastName( command.getLastName())
-                .firstName(command.getFirstName())
+        Customers customerToCreate = Customers.builder()
+                .last_name( command.getLast_name())
+                .first_name(command.getFirst_name())
                 .email(command.getEmail())
-                .phoneNumber(command.getPhoneNumber())
+                .phone_number(command.getPhone_number())
                 .build();
 
         customerRepository.save(customerToCreate);
     }
 
     public void updateCustomer(UptadeCustomerCommand command){
-        Customer customerToUptade = findCustomerByIdOrThrow(command.getId());
+        Customers customerToUptade = findCustomerByIdOrThrow(command.getId());
 
-        customerToUptade.setFirstName(command.getFirstName());
-        customerToUptade.setLastName(command.getLastName());
+        customerToUptade.setFirst_name(command.getFirst_name());
+        customerToUptade.setLast_name(command.getLast_name());
         customerToUptade.setEmail(command.getEmail());
-        customerToUptade.setPhoneNumber(command.getPhoneNumber());
+        customerToUptade.setPhone_number(command.getPhone_number());
 
         customerRepository.save(customerToUptade);
     }
 
-    private Customer findCustomerByIdOrThrow(Integer id) {
+    private Customers findCustomerByIdOrThrow(Integer id) {
         return customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(id));
 }

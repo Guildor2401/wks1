@@ -1,9 +1,8 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Customer;
+import com.example.demo.model.Customers;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.lang.classfile.Interfaces;
 
-public interface CustomerRepository extends JpaRepository<Customer,Integer> {
+public interface CustomerRepository extends JpaRepository<Customers,Integer> {
 }

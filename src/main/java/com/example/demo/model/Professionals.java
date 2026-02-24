@@ -14,12 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class Professional {
+public class Professionals {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
-    private String metier;
+    private String profession;
+    private String email;
+    private String phoneNumber;
 }
 

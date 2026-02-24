@@ -1,12 +1,26 @@
 package com.example.demo.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class UptadeCustomerCommand {
+    @JsonProperty("id")
     private Integer id;
-    private String firstName;
-    private String lastName;
+
+    @JsonProperty("first_name")
+    private String first_name;
+
+    @JsonProperty("last_name")
+    private String last_name;
+
+    @JsonProperty("email")
     private String email;
-    private String phoneNumber;
+
+    @JsonProperty("phone_number")
+    private String phone_number;
 }
