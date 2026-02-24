@@ -22,9 +22,9 @@ public class Appointment {
     private Integer hours;
     @OneToOne
     @JoinColumn(name = "client_id")
-    private Customer client;
+    private Customer customer;
     private Integer status;
     @ManyToOne
     @JoinColumn(name = "professionels_id")
-    private Professionnal professionnel;
+    private Professional professional;
 }
