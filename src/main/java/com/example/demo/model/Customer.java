@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class Client {
+public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -19,5 +19,5 @@ public class Client {
     private String firstName;
     private String lastName;
     private String email;
-    private Integer telephone;
+    private String phoneNumber;
 }

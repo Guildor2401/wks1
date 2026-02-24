@@ -22,7 +22,7 @@ public class RDV {
     private Integer hours;
     @OneToOne
     @JoinColumn(name = "client_id")
-    private  Client client;
+    private Customer client;
     private Integer status;
     @ManyToOne
     @JoinColumn(name = "professionels_id")
