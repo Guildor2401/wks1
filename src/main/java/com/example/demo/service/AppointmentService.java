@@ -41,6 +41,21 @@ public class AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
     }
 
+    public List<Appointments> getAppointmentsByProfessional(Integer professionalId) {
+        return appointmentRepository.findByProfessionalsId(professionalId);
+    }
+
+    public List<Appointments> getAppointmentsByCustomerId(Integer customerId) {
+        return appointmentRepository.findByCustomersId(customerId);
+    }
+
+    public List<Appointments> getAppointmentsByDateRange(String startStr, String endStr) {
+        Date start = parseDateOrNull(startStr);
+        Date end = parseDateOrNull(endStr);
+        if (start == null || end == null) return List.of();
+        return appointmentRepository.findByDateBetween(start, end);
+    }
+
     public void createAppointment(CreateAppointmentCommand command){
         Appointments appointment = new Appointments();
 
@@ -87,7 +102,6 @@ public class AppointmentService {
     }
 
     public void deleteAppointment(Integer id){
-        AppointmentNotFoundException ex = null;
         if (!appointmentRepository.existsById(id)) {
             throw new AppointmentNotFoundException(id);
         }
@@ -103,4 +117,3 @@ public class AppointmentService {
         }
     }
 }
-

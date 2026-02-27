@@ -18,12 +18,17 @@ public class Appointments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "appointment_date")
     private Date date;
+
     private Integer duration;
-    @OneToOne
+
+    @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customers customers;
+
     private Integer status;
+
     @ManyToOne
     @JoinColumn(name = "professional_id")
     private Professionals professionals;

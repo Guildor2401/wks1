@@ -28,6 +28,21 @@ public class AppointmentController {
         return appointmentService.getAppointmentById(id);
     }
 
+    @GetMapping("/ByProfessional/{professionalId}")
+    public List<Appointments> getByProfessional(@PathVariable Integer professionalId) {
+        return appointmentService.getAppointmentsByProfessional(professionalId);
+    }
+
+    @GetMapping("/ByCustomer/{customerId}")
+    public List<Appointments> getByCustomer(@PathVariable Integer customerId) {
+        return appointmentService.getAppointmentsByCustomerId(customerId);
+    }
+
+    @GetMapping("/ByDateRange")
+    public List<Appointments> getByDateRange(@RequestParam String start, @RequestParam String end) {
+        return appointmentService.getAppointmentsByDateRange(start, end);
+    }
+
     @PostMapping("/CreateAppointment")
     public void createAppointment(@RequestBody CreateAppointmentCommand command){
         appointmentService.createAppointment(command);

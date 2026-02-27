@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,7 @@ public class Professionals {
     private String name;
     private String profession;
     private String email;
+
+    @Column(name = "phoneNumber")
     private String phoneNumber;
 }
-
