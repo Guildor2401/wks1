@@ -58,39 +58,81 @@ public class AppointmentService {
         return appointmentRepository.findByDateBetween(start, end);
     }
 
-    public void createAppointment(CreateAppointmentCommand command){
-        Appointments appointment = new Appointments();
+    public void createAppointment(CreateAppointmentCommand command) {
 
-        appointment.setDuration(command.getDuration());
-        appointment.setStatus(command.getStatus());
+        if (command.getDate() == null || command.getDuration() == null) {
+            throw new IllegalArgumentException("La date et la durée sont obligatoires.");
+        }
 
         Date parsedDate = parseDateOrNull(command.getDate());
-        appointment.setDate(parsedDate);
-
-        if (command.getCustomer_id() != null) {
-            Customers customer = customerRepository.findById(command.getCustomer_id()).orElse(null);
-            appointment.setCustomers(customer);
+        if (parsedDate == null) {
+            throw new IllegalArgumentException("Format de date invalide.");
         }
 
+        Professionals professional = null;
         if (command.getProfessional_id() != null) {
-            Professionals professional = professionalRepository.findById(command.getProfessional_id()).orElse(null);
-            appointment.setProfessionals(professional);
+            professional = professionalRepository.findById(command.getProfessional_id())
+                    .orElseThrow(() -> new RuntimeException("Professionnel introuvable."));
         }
 
-        List<Appointments> possibleConflicts = appointmentRepository.findByDateBetween(appointment.getDate(), computeEndTime(appointment.getDate().toInstant()
+        Customers customer = null;
+        if (command.getCustomer_id() != null) {
+            customer = customerRepository.findById(command.getCustomer_id())
+                    .orElseThrow(() -> new RuntimeException("Client introuvable."));
+        }
+
+        LocalDateTime newStart = parsedDate.toInstant()
                 .atZone(ZoneId.systemDefault())
-                .toLocalDateTime(), appointment.getDuration()));
+                .toLocalDateTime();
 
-        System.out.println("possibleConflicts = " + possibleConflicts);
+        LocalDateTime newEnd = newStart.plusMinutes(command.getDuration());
 
-        if (possibleConflicts.stream().anyMatch(a -> a.getProfessionals() != null && a.getProfessionals().getId().equals(command.getProfessional_id()))) {
-            throw new RuntimeException("Le professionnel est déjà occupé à ce créneau.");
+        if (professional != null) {
+
+            List<Appointments> professionalAppointments =
+                    appointmentRepository.findByProfessionalsId(professional.getId());
+
+            for (Appointments existing : professionalAppointments) {
+
+                LocalDateTime existingStart = existing.getDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+
+                LocalDateTime existingEnd =
+                        existingStart.plusMinutes(existing.getDuration());
+
+                if (overlaps(existingStart, existingEnd, newStart, newEnd)) {
+                    throw new RuntimeException("Le professionnel est déjà occupé à ce créneau.");
+                }
+            }
         }
 
-        if (possibleConflicts.stream().anyMatch(a -> a.getCustomers() != null && a.getCustomers().getId().equals(command.getCustomer_id()))) {
-            throw new RuntimeException("Le client a déjà un rendez-vous à ce créneau.");
+        if (customer != null) {
+
+            List<Appointments> customerAppointments =
+                    appointmentRepository.findByCustomersId(customer.getId());
+
+            for (Appointments existing : customerAppointments) {
+
+                LocalDateTime existingStart = existing.getDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+
+                LocalDateTime existingEnd =
+                        existingStart.plusMinutes(existing.getDuration());
+
+                if (overlaps(existingStart, existingEnd, newStart, newEnd)) {
+                    throw new RuntimeException("Le client a déjà un rendez-vous à ce créneau.");
+                }
+            }
         }
 
+        Appointments appointment = new Appointments();
+        appointment.setDate(parsedDate);
+        appointment.setDuration(command.getDuration());
+        appointment.setStatus(command.getStatus());
+        appointment.setProfessionals(professional);
+        appointment.setCustomers(customer);
 
         appointmentRepository.save(appointment);
     }
@@ -172,5 +214,34 @@ public class AppointmentService {
         // Deux intervalles se chevauchent si le début de l’un est avant la fin de l’autre
         // ET la fin de l’un est après le début de l’autre.
         return !appointmentEnd.isBefore(slotStart) && !appointmentStart.isAfter(slotEnd);
+    }
+
+
+    private boolean hasConflict(Integer professionalId, Date newStart, int duration) {
+
+        LocalDateTime newStartLdt = newStart.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        LocalDateTime newEndLdt = newStartLdt.plusMinutes(duration);
+
+        List<Appointments> existingAppointments =
+                appointmentRepository.findByProfessionalsId(professionalId);
+
+        for (Appointments a : existingAppointments) {
+
+            LocalDateTime existingStart = a.getDate().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            LocalDateTime existingEnd =
+                    existingStart.plusMinutes(a.getDuration());
+
+            if (overlaps(existingStart, existingEnd, newStartLdt, newEndLdt)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
