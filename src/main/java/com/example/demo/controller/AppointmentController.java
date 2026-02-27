@@ -33,6 +33,16 @@ public class AppointmentController {
         return appointmentService.getAppointmentsByProfessional(professionalId);
     }
 
+    @GetMapping("/ByDateAndProId/{date}/{professionalId}")
+    public List<Appointments> getByDateAndProfessional(@PathVariable String date, @PathVariable Integer professionalId) {
+        return appointmentService.getAppointmentsByDateAndProfessional(date, professionalId);
+    }
+
+    @GetMapping("/ByDateAndCustomerId/{date}/{customerId}")
+    public List<Appointments> getByDateAndCustomer(@PathVariable String date, @PathVariable Integer customerId) {
+        return appointmentService.getAppointmentsByDateAndCustomer(date, customerId);
+    }
+
     @GetMapping("/ByCustomer/{customerId}")
     public List<Appointments> getByCustomer(@PathVariable Integer customerId) {
         return appointmentService.getAppointmentsByCustomerId(customerId);

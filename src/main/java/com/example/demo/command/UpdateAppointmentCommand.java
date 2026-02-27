@@ -1,5 +1,6 @@
 package com.example.demo.command;
 
+import com.example.demo.model.AppointmentStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UpdateAppointmentCommand {
@@ -19,7 +20,7 @@ public class UpdateAppointmentCommand {
     private Integer professional_id;
 
     @JsonProperty("status")
-    private Integer status;
+    private AppointmentStatus status;
 
     public UpdateAppointmentCommand() {}
 
@@ -63,12 +64,12 @@ public class UpdateAppointmentCommand {
         this.professional_id = professional_id;
     }
 
-    public Integer getStatus() {
+    public AppointmentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setStatus(String status) {
+        this.status = AppointmentStatus.valueOf(status);
     }
 }
 

@@ -27,9 +27,14 @@ public class Appointments {
     @JoinColumn(name = "customer_id")
     private Customers customers;
 
-    private Integer status;
+    @Column(name = "status", nullable = false,
+            columnDefinition = "appointment_status")   // indique le type PostgreSQL
+    @Enumerated(EnumType.STRING)                     // stocke la valeur texte (PENDING, …)
+    private AppointmentStatus status;
 
     @ManyToOne
     @JoinColumn(name = "professional_id")
     private Professionals professionals;
 }
+
+

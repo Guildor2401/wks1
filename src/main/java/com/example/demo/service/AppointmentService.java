@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -75,7 +77,34 @@ public class AppointmentService {
             appointment.setProfessionals(professional);
         }
 
+        List<Appointments> possibleConflicts = appointmentRepository.findByDateBetween(appointment.getDate(), computeEndTime(appointment.getDate().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime(), appointment.getDuration()));
+
+        System.out.println("possibleConflicts = " + possibleConflicts);
+
+        if (possibleConflicts.stream().anyMatch(a -> a.getProfessionals() != null && a.getProfessionals().getId().equals(command.getProfessional_id()))) {
+            throw new RuntimeException("Le professionnel est déjà occupé à ce créneau.");
+        }
+
+        if (possibleConflicts.stream().anyMatch(a -> a.getCustomers() != null && a.getCustomers().getId().equals(command.getCustomer_id()))) {
+            throw new RuntimeException("Le client a déjà un rendez-vous à ce créneau.");
+        }
+
+
         appointmentRepository.save(appointment);
+    }
+
+    public List<Appointments> getAppointmentsByDateAndProfessional (String dateStr, Integer professionalId) {
+        Date date = parseDateOrNull(dateStr);
+        if (date == null) return List.of();
+        return appointmentRepository.findByDateAndProfessionalsId(date, professionalId);
+    }
+
+    public List<Appointments> getAppointmentsByDateAndCustomer (String dateStr, Integer customerId) {
+        Date date = parseDateOrNull(dateStr);
+        if (date == null) return List.of();
+        return appointmentRepository.findByDateAndCustomersId(date, customerId);
     }
 
     public void updateAppointment(UpdateAppointmentCommand command){
@@ -115,5 +144,33 @@ public class AppointmentService {
         } catch (ParseException e){
             return null;
         }
+    }
+    /**
+     * Retourne l’heure de fin d’un rendez‑vous.
+     *
+     * @param start   la date/heure de début (ex. 2026‑02‑27T18:00)
+     * @param minutes durée en minutes
+     * @return date/heure de fin
+     */
+    public static Date computeEndTime(LocalDateTime start, int minutes) {
+        return Date.from(start.plusMinutes(minutes).atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    /**
+     * Vérifie si un créneau donné (de start à end) intersecte la plage du rendez‑vous.
+     *
+     * @param appointmentStart  début du rendez‑vous
+     * @param appointmentEnd    fin du rendez‑vous (déjà calculée)
+     * @param slotStart         début du créneau à tester
+     * @param slotEnd           fin du créneau à tester
+     * @return true si les deux intervalles se chevauchent, false sinon
+     */
+    public static boolean overlaps(LocalDateTime appointmentStart,
+                                   LocalDateTime appointmentEnd,
+                                   LocalDateTime slotStart,
+                                   LocalDateTime slotEnd) {
+        // Deux intervalles se chevauchent si le début de l’un est avant la fin de l’autre
+        // ET la fin de l’un est après le début de l’autre.
+        return !appointmentEnd.isBefore(slotStart) && !appointmentStart.isAfter(slotEnd);
     }
 }
