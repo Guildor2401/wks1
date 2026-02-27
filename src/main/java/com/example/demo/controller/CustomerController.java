@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.command.CreateCustomerCommand;
+import com.example.demo.command.UptadeCustomerCommand;
 import com.example.demo.model.Customers;
 import com.example.demo.service.CustomerService;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,12 @@ public class CustomerController {
     }
 
     @PutMapping("/UpdateCustomer")
-    public void UpdateCustomer(@RequestBody CreateCustomerCommand command) {
-        customerService.createCustomer(command);
+    public void UpdateCustomer(@RequestBody UptadeCustomerCommand command) {
+        customerService.updateCustomer(command);
+    }
+    @DeleteMapping("/DeleteCustomer")
+    public void DeleteCustomer(@PathVariable Integer id)
+    {
+        customerService.deleteCustomer(id);
     }
 }

@@ -64,4 +64,8 @@ public class ProfessionalService {
         return professionalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Aucun professionnel pour l'id : " + id));
     }
+
+    public void deleteProfessionalById(Integer id) {
+        professionalRepository.deleteById(id);
+    }
 }

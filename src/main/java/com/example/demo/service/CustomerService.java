@@ -59,6 +59,10 @@ public class CustomerService {
         customerRepository.save(customerToUptade);
     }
 
+    public void deleteCustomer(Integer id) {
+        customerRepository.deleteById(id);
+    }
+
     private Customers findCustomerByIdOrThrow(Integer id) {
         return customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(id));

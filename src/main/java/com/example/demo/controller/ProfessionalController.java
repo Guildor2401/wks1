@@ -39,4 +39,9 @@ public class ProfessionalController {
     public void UpdateProfessional(@RequestBody UpdateProfessionalCommand command) {
         professionalService.updateProfessional(command);
     }
+
+    @DeleteMapping("/DeleteProfessional")
+    public void DeleteProfessional(@RequestParam Integer id) {
+        professionalService.deleteProfessionalById(id);
+    }
 }
