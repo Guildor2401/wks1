@@ -20,8 +20,8 @@ public class AppointmentController {
     }
 
     @GetMapping("/AllAppointments")
-    public List<Appointments> getAllAppointments(@RequestBody AppointmentStatus status) {
-        return appointmentService.getAllAppointments(status);
+    public List<Appointments> getAllAppointments(  ) {
+        return appointmentService.getAllAppointments();
     }
 
     @GetMapping("/{id}")

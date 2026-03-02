@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -35,8 +38,8 @@ public class AppointmentService {
         this.professionalRepository = professionalRepository;
     }
 
-    public List<Appointments> getAllAppointments(AppointmentStatus status) {
-        return appointmentRepository.findByStatus(status);
+    public List<Appointments> getAllAppointments() {
+        return appointmentRepository.findAll();
     }
 
     public Appointments getAppointmentById(Integer id){
@@ -53,8 +56,8 @@ public class AppointmentService {
     }
 
     public List<Appointments> getAppointmentsByDateRange(String startStr, String endStr) {
-        Date start = parseDateOrNull(startStr);
-        Date end = parseDateOrNull(endStr);
+        LocalDateTime start = parseDateOrNull(startStr);
+        LocalDateTime end = parseDateOrNull(endStr);
         if (start == null || end == null) return List.of();
         return appointmentRepository.findByDateBetweenAndStatus(start, end, AppointmentStatus.planned);
     }
@@ -65,7 +68,7 @@ public class AppointmentService {
             throw new IllegalArgumentException("La date et la durée sont obligatoires.");
         }
 
-        Date parsedDate = parseDateOrNull(command.getDate());
+        LocalDateTime parsedDate = parseDateOrNull(command.getDate());
         if (parsedDate == null) {
             throw new IllegalArgumentException("Format de date invalide.");
         }
@@ -82,9 +85,7 @@ public class AppointmentService {
                     .orElseThrow(() -> new RuntimeException("Client introuvable."));
         }
 
-        LocalDateTime newStart = parsedDate.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        LocalDateTime newStart = parsedDate;
 
         LocalDateTime newEnd = newStart.plusMinutes(command.getDuration());
 
@@ -95,9 +96,7 @@ public class AppointmentService {
 
             for (Appointments existing : professionalAppointments) {
 
-                LocalDateTime existingStart = existing.getDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime();
+                LocalDateTime existingStart = existing.getDate();
 
                 LocalDateTime existingEnd =
                         existingStart.plusMinutes(existing.getDuration());
@@ -115,9 +114,7 @@ public class AppointmentService {
 
             for (Appointments existing : customerAppointments) {
 
-                LocalDateTime existingStart = existing.getDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime();
+                LocalDateTime existingStart = existing.getDate();
 
                 LocalDateTime existingEnd =
                         existingStart.plusMinutes(existing.getDuration());
@@ -139,13 +136,13 @@ public class AppointmentService {
     }
 
     public List<Appointments> getAppointmentsByDateAndProfessional (String dateStr, Integer professionalId) {
-        Date date = parseDateOrNull(dateStr);
+        LocalDateTime date = parseDateOrNull(dateStr);
         if (date == null) return List.of();
         return appointmentRepository.findByDateAndProfessionalsId(date, professionalId);
     }
 
     public List<Appointments> getAppointmentsByDateAndCustomer (String dateStr, Integer customerId) {
-        Date date = parseDateOrNull(dateStr);
+        LocalDateTime date = parseDateOrNull(dateStr);
         if (date == null) return List.of();
         return appointmentRepository.findByDateAndCustomersId(date, customerId);
     }
@@ -157,7 +154,7 @@ public class AppointmentService {
         appointment.setDuration(command.getDuration());
         appointment.setStatus(command.getStatus());
 
-        Date parsedDate = parseDateOrNull(command.getDate());
+        LocalDateTime parsedDate = parseDateOrNull(command.getDate());
         appointment.setDate(parsedDate);
 
         if (command.getCustomer_id() != null) {
@@ -180,11 +177,15 @@ public class AppointmentService {
         appointmentRepository.deleteById(id);
     }
 
-    private Date parseDateOrNull(String dateStr){
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private LocalDateTime parseDateOrNull(String dateStr) {
         if (dateStr == null) return null;
-        try{
-            return dateFormat.parse(dateStr);
-        } catch (ParseException e){
+
+        try {
+            return LocalDateTime.parse(dateStr, FORMATTER);
+        } catch (DateTimeParseException e) {
             return null;
         }
     }
@@ -231,9 +232,7 @@ public class AppointmentService {
 
         for (Appointments a : existingAppointments) {
 
-            LocalDateTime existingStart = a.getDate().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
+            LocalDateTime existingStart = a.getDate();
 
             LocalDateTime existingEnd =
                     existingStart.plusMinutes(a.getDuration());
@@ -251,6 +250,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
         appointment.setStatus(AppointmentStatus.cancel);
+        appointmentRepository.save(appointment);
     }
 
     public void finishedAppointment(Integer id)
@@ -259,5 +259,6 @@ public class AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
         appointment.setStatus(AppointmentStatus.finish);
+        appointmentRepository.save(appointment);
     }
 }
