@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.command.CreateAppointmentCommand;
 import com.example.demo.command.UpdateAppointmentCommand;
+import com.example.demo.model.AppointmentStatus;
 import com.example.demo.model.Appointments;
 import com.example.demo.service.AppointmentService;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,8 @@ public class AppointmentController {
     }
 
     @GetMapping("/AllAppointments")
-    public List<Appointments> getAllAppointments(){
-        return appointmentService.getAllAppointments();
+    public List<Appointments> getAllAppointments(@RequestBody AppointmentStatus status) {
+        return appointmentService.getAllAppointments(status);
     }
 
     @GetMapping("/{id}")
@@ -67,4 +68,11 @@ public class AppointmentController {
     public void deleteAppointment(@PathVariable Integer id){
         appointmentService.deleteAppointment(id);
     }
+
+    @PutMapping("/CancelledAppointment/{id}")
+    public void cancelAppointment(@PathVariable Integer id){appointmentService.canceledAppointment(id);
+    }
+
+    @PutMapping("/FinishAppointment/{id}")
+    public void finishAppointment(@PathVariable Integer id){appointmentService.finishedAppointment(id);}
 }

@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.command.CreateAppointmentCommand;
 import com.example.demo.command.UpdateAppointmentCommand;
 import com.example.demo.exception.AppointmentNotFoundException;
+import com.example.demo.model.AppointmentStatus;
 import com.example.demo.model.Appointments;
 import com.example.demo.model.Customers;
 import com.example.demo.model.Professionals;
@@ -34,8 +35,8 @@ public class AppointmentService {
         this.professionalRepository = professionalRepository;
     }
 
-    public List<Appointments> getAllAppointments() {
-        return appointmentRepository.findAll();
+    public List<Appointments> getAllAppointments(AppointmentStatus status) {
+        return appointmentRepository.findByStatus(status);
     }
 
     public Appointments getAppointmentById(Integer id){
@@ -55,7 +56,7 @@ public class AppointmentService {
         Date start = parseDateOrNull(startStr);
         Date end = parseDateOrNull(endStr);
         if (start == null || end == null) return List.of();
-        return appointmentRepository.findByDateBetween(start, end);
+        return appointmentRepository.findByDateBetweenAndStatus(start, end, AppointmentStatus.planned);
     }
 
     public void createAppointment(CreateAppointmentCommand command) {
@@ -241,7 +242,22 @@ public class AppointmentService {
                 return true;
             }
         }
-
         return false;
+    }
+
+    public void canceledAppointment(Integer id)
+    {
+        Appointments appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
+
+        appointment.setStatus(AppointmentStatus.cancel);
+    }
+
+    public void finishedAppointment(Integer id)
+    {
+        Appointments appointment =  appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
+
+        appointment.setStatus(AppointmentStatus.finish);
     }
 }
